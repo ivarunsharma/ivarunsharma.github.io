@@ -496,7 +496,7 @@ h1 em { color:var(--accent); font-style:normal; }
 
   <!-- HEADER -->
   <header>
-    <div class="top-label">AI Systems Reference</div>
+    <!--div class="top-label">AI Systems Reference</div-->
     <h1>End-to-End <em>AI Pipeline</em></h1>
     <p class="subtitle">click any component to explore · interactive diagram</p>
     <p class="hint">👆 Click nodes to see detailed explanations</p>
