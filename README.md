@@ -1,958 +1,350 @@
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive AI Pipeline</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Varun Sharma — Technical Architect & GenAI Engineer</title>title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #060610;
-  --surface: #0d0d1a;
-  --card: #111125;
-  --border: #1a1a35;
-  --accent: #0ff;
-  --accent2: #f0f;
-  --accent3: #ff9500;
-  --genai: #00ffcc;
-  --trad: #ff6b35;
-  --lookup: #b48eff;
-  --text: #dde2ff;
-  --muted: #555577;
-  --glow: rgba(0,255,255,0.15);
-}
-
-* { margin:0; padding:0; box-sizing:border-box; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Fira Code', monospace;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* ── ANIMATED BACKGROUND GRID ── */
-body::before {
-  content:'';
-  position:fixed;
-  inset:0;
-  background-image:
-    linear-gradient(rgba(0,255,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,255,255,0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events:none;
-  z-index:0;
-}
-
-/* ── SCANNING LINE ── */
-body::after {
-  content:'';
-  position:fixed;
-  left:0; right:0;
-  height:2px;
-  background: linear-gradient(90deg, transparent, rgba(0,255,255,0.4), transparent);
-  animation: scan 6s linear infinite;
-  pointer-events:none;
-  z-index:0;
-}
-@keyframes scan { from{top:-2px} to{top:100vh} }
-
-.wrapper {
-  position:relative;
-  z-index:1;
-  max-width:1200px;
-  margin:0 auto;
-  /*padding:40px 24px 80px;*/
-}
-
-/* ── HEADER ── */
-header { text-align:center; margin-bottom:60px; }
-.top-label {
-  display:inline-flex; align-items:center; gap:8px;
-  font-size:10px; letter-spacing:0.3em; text-transform:uppercase;
-  color:var(--accent); margin-bottom:20px;
-}
-.top-label::before, .top-label::after {
-  content:''; width:30px; height:1px; background:var(--accent);
-}
-h1 {
-  font-family:'Syne', sans-serif;
-  font-size:clamp(24px,5vw,48px);
-  font-weight:800;
-  color:#fff;
-  line-height:1.1;
-}
-h1 em { color:var(--accent); font-style:normal; }
-.subtitle {
-  margin-top:12px;
-  font-size:11px;
-  color:var(--muted);
-  letter-spacing:0.12em;
-}
-.hint {
-  margin-top:16px;
-  display:inline-flex; align-items:center; gap:8px;
-  font-size:11px; color:var(--muted);
-  border:1px solid var(--border);
-  padding:6px 14px; border-radius:20px;
-  animation: pulse-hint 2s ease infinite;
-}
-@keyframes pulse-hint {
-  0%,100%{border-color:var(--border);}
-  50%{border-color:rgba(0,255,255,0.3);}
-}
-
-/* ── TABS ── */
-.tabs {
-  display:flex; gap:4px;
-  margin-bottom:32px;
-  border-bottom:1px solid var(--border);
-  padding-bottom:0;
-}
-.tab-btn {
-  font-family:'Syne',sans-serif;
-  font-size:12px; font-weight:600;
-  letter-spacing:0.1em;
-  text-transform:uppercase;
-  padding:10px 20px;
-  background:none;
-  border:none; border-bottom:2px solid transparent;
-  color:var(--muted);
-  cursor:pointer;
-  transition:all 0.2s;
-  position:relative; bottom:-1px;
-}
-.tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
-.tab-btn:hover:not(.active) { color:var(--text); }
-
-.tab-panel { display:none; }
-.tab-panel.active { display:block; }
-
-/* ── PIPELINE DIAGRAM ── */
-.pipeline-wrap {
-  position:relative;
-  margin-bottom:40px;
-}
-
-/* Animated data packet travelling along pipeline */
-.data-flow-track {
-  position:absolute;
-  top:50%; left:0; right:0;
-  height:2px;
-  transform:translateY(-50%);
-  pointer-events:none;
-  overflow:hidden;
-  border-radius:2px;
-}
-.data-packet {
-  position:absolute;
-  width:40px; height:4px;
-  background:linear-gradient(90deg, transparent, var(--accent), transparent);
-  border-radius:2px;
-  top:-1px;
-  animation: packet 3s linear infinite;
-  box-shadow:0 0 8px var(--accent);
-}
-@keyframes packet { from{left:-40px} to{left:100%} }
-
-.pipeline {
-  display:flex;
-  align-items:center;
-  gap:0;
-  position:relative;
-}
-
-/* Connector line */
-.connector {
-  flex:1;
-  height:2px;
-  background:linear-gradient(90deg, var(--border), rgba(0,255,255,0.2), var(--border));
-  position:relative;
-  min-width:20px;
-}
-.connector::after {
-  content:'▶';
-  position:absolute;
-  right:-8px; top:50%;
-  transform:translateY(-50%);
-  font-size:10px;
-  color:var(--accent);
-  opacity:0.6;
-}
-
-.pipe-node {
-  width:130px;
-  flex-shrink:0;
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:18px 14px;
-  cursor:pointer;
-  transition:all 0.25s ease;
-  position:relative;
-  text-align:center;
-}
-.pipe-node:hover, .pipe-node.active {
-  border-color:var(--accent);
-  box-shadow:0 0 24px rgba(0,255,255,0.2), inset 0 0 20px rgba(0,255,255,0.04);
-  transform:translateY(-4px);
-}
-.pipe-node.active::before {
-  content:'';
-  position:absolute;
-  inset:-1px; border-radius:10px;
-  background:linear-gradient(135deg, rgba(0,255,255,0.1), transparent);
-  pointer-events:none;
-}
-.pipe-node .node-icon {
-  font-size:26px;
-  display:block;
-  margin-bottom:8px;
-  filter:drop-shadow(0 0 6px rgba(0,255,255,0.3));
-}
-.pipe-node .node-title {
-  font-family:'Syne',sans-serif;
-  font-size:11px;
-  font-weight:700;
-  color:#fff;
-  line-height:1.3;
-}
-.pipe-node .node-sub {
-  font-size:9px;
-  color:var(--muted);
-  margin-top:4px;
-  letter-spacing:0.05em;
-}
-.node-pulse {
-  position:absolute;
-  top:8px; right:8px;
-  width:7px; height:7px;
-  border-radius:50%;
-  background:var(--accent);
-  box-shadow:0 0 6px var(--accent);
-}
-.node-pulse::after {
-  content:'';
-  position:absolute;
-  inset:-3px; border-radius:50%;
-  border:1px solid var(--accent);
-  animation:ripple 2s ease infinite;
-}
-@keyframes ripple {
-  0%{transform:scale(1);opacity:1}
-  100%{transform:scale(2.5);opacity:0}
-}
-
-/* ── DETAIL PANEL ── */
-.detail-panel {
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:28px;
-  margin-top:24px;
-  animation:slideIn 0.3s ease;
-  min-height:180px;
-  position:relative;
-  overflow:hidden;
-}
-.detail-panel::before {
-  content:'';
-  position:absolute;
-  top:0; left:0; right:0; height:2px;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-}
-@keyframes slideIn {
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;transform:translateY(0)}
-}
-.detail-panel .dp-header {
-  display:flex; align-items:center; gap:16px;
-  margin-bottom:20px;
-}
-.dp-icon { font-size:36px; }
-.dp-title {
-  font-family:'Syne',sans-serif;
-  font-size:20px; font-weight:800;
-  color:#fff;
-}
-.dp-subtitle { font-size:11px; color:var(--accent); margin-top:2px; letter-spacing:0.1em; }
-.dp-body { font-size:12px; color:var(--text); line-height:1.8; }
-.dp-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
-.dp-tag {
-  font-size:10px;
-  padding:4px 12px;
-  border-radius:4px;
-  letter-spacing:0.08em;
-}
-.dp-tag.green { background:rgba(0,255,204,0.12); color:var(--genai); border:1px solid rgba(0,255,204,0.25); }
-.dp-tag.purple { background:rgba(180,142,255,0.12); color:var(--lookup); border:1px solid rgba(180,142,255,0.25); }
-.dp-tag.orange { background:rgba(255,107,53,0.12); color:var(--trad); border:1px solid rgba(255,107,53,0.25); }
-.dp-tag.cyan { background:rgba(0,255,255,0.1); color:var(--accent); border:1px solid rgba(0,255,255,0.2); }
-
-.dp-default {
-  text-align:center;
-  padding:30px;
-  color:var(--muted);
-}
-.dp-default .arrow { font-size:24px; margin-bottom:10px; opacity:0.4; }
-
-/* ── ARCHITECTURE ── */
-.arch-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:16px;
-}
-.arch-card {
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:20px;
-  cursor:pointer;
-  transition:all 0.25s;
-  position:relative;
-  overflow:hidden;
-}
-.arch-card:hover {
-  transform:translateY(-3px);
-  border-color:rgba(0,255,255,0.4);
-  box-shadow:0 8px 32px rgba(0,0,0,0.4);
-}
-.arch-card::after {
-  content:'';
-  position:absolute;
-  top:0; left:0; right:0; height:2px;
-}
-.arch-card:nth-child(1)::after{background:var(--accent);}
-.arch-card:nth-child(2)::after{background:var(--accent2);}
-.arch-card:nth-child(3)::after{background:var(--accent3);}
-.arch-card:nth-child(4)::after{background:var(--genai);}
-.arch-card:nth-child(5)::after{background:var(--lookup);}
-
-.arch-num {
-  font-family:'Syne',sans-serif;
-  font-size:48px; font-weight:800;
-  opacity:0.05; position:absolute;
-  top:4px; right:10px; color:#fff;
-  line-height:1;
-}
-.arch-icon { font-size:28px; margin-bottom:10px; }
-.arch-title {
-  font-family:'Syne',sans-serif;
-  font-size:13px; font-weight:700;
-  color:#fff; margin-bottom:8px;
-}
-.arch-desc { font-size:11px; color:var(--muted); line-height:1.7; }
-
-/* ── PROMPT TABLE ── */
-.prompt-section {}
-.prompt-intro {
-  font-size:12px; color:var(--muted);
-  margin-bottom:24px; line-height:1.8;
-}
-
-.prompt-cards { display:flex; flex-direction:column; gap:12px; }
-.prompt-card {
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:18px 20px;
-  display:grid;
-  grid-template-columns:32px 1fr auto auto auto;
-  align-items:center;
-  gap:16px;
-  cursor:pointer;
-  transition:all 0.2s;
-}
-.prompt-card:hover {
-  border-color:rgba(0,255,255,0.3);
-  background:#13132a;
-}
-.prompt-card.expanded { border-color:var(--accent); }
-
-.pnum {
-  font-family:'Syne',sans-serif;
-  font-size:16px; font-weight:800;
-  color:var(--muted);
-}
-.ptext { font-size:12px; color:#fff; }
-.ptext em { font-style:normal; color:var(--muted); font-size:11px; display:block; margin-top:3px; }
-
-.chip {
-  font-size:9px; font-weight:600;
-  padding:4px 10px; border-radius:3px;
-  letter-spacing:0.1em; text-transform:uppercase;
-  white-space:nowrap;
-}
-.chip-genai { background:rgba(0,255,204,0.12); color:var(--genai); border:1px solid rgba(0,255,204,0.3); }
-.chip-trad { background:rgba(255,107,53,0.12); color:var(--trad); border:1px solid rgba(255,107,53,0.3); }
-.chip-lookup { background:rgba(180,142,255,0.12); color:var(--lookup); border:1px solid rgba(180,142,255,0.3); }
-
-.ptask {
-  font-size:10px; color:var(--muted);
-  white-space:nowrap;
-}
-
-.pexpand {
-  font-size:16px; color:var(--muted);
-  transition:transform 0.2s;
-}
-.prompt-card.expanded .pexpand { transform:rotate(180deg); color:var(--accent); }
-
-.prompt-detail {
-  display:none;
-  grid-column:1/-1;
-  padding-top:14px;
-  border-top:1px solid var(--border);
-  margin-top:6px;
-  font-size:11px;
-  color:var(--text);
-  line-height:1.8;
-}
-.prompt-card.expanded .prompt-detail { display:block; }
-
-.pd-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
-.pd-box {
-  background:rgba(255,255,255,0.02);
-  border:1px solid var(--border);
-  border-radius:6px;
-  padding:12px;
-}
-.pd-label { font-size:9px; color:var(--accent); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:6px; }
-.pd-value { font-size:11px; color:#fff; line-height:1.6; }
-
-/* ── LEGEND ── */
-.legend {
-  display:flex; gap:20px; flex-wrap:wrap;
-  margin-top:24px;
-  padding:14px 18px;
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:8px;
-}
-.legend-item { display:flex; align-items:center; gap:8px; font-size:11px; color:var(--muted); }
-.ldot { width:8px; height:8px; border-radius:2px; }
-
-/* ── FLOW ANIMATION ── */
-.flow-demo {
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:20px;
-  margin-top:28px;
-}
-.flow-title {
-  font-family:'Syne',sans-serif;
-  font-size:11px; font-weight:700;
-  color:var(--accent); letter-spacing:0.15em;
-  text-transform:uppercase;
-  margin-bottom:16px;
-}
-.flow-steps {
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-.flow-step {
-  display:flex; align-items:center; gap:14px;
-  font-size:11px;
-  opacity:0.3;
-  transition:opacity 0.5s, transform 0.5s;
-  transform:translateX(-8px);
-}
-.flow-step.active { opacity:1; transform:translateX(0); }
-.flow-step.done { opacity:0.5; }
-.fs-dot {
-  width:8px; height:8px; border-radius:50%;
-  background:var(--accent); flex-shrink:0;
-  box-shadow:0 0 6px var(--accent);
-}
-.flow-step.done .fs-dot { background:var(--muted); box-shadow:none; }
-.fs-bar {
-  flex:1; height:1px;
-  background:linear-gradient(90deg, var(--accent), transparent);
-  opacity:0.4;
-}
-
-/* ── RESPONSIVE ── */
-@media(max-width:700px){
-  .pipeline { flex-direction:column; align-items:stretch; }
-  .connector { width:2px; height:24px; align-self:center; flex:none;
-    background:linear-gradient(var(--border),rgba(0,255,255,0.2),var(--border)); }
-  .connector::after { content:'▼'; right:unset; top:unset; bottom:-10px; left:50%; transform:translateX(-50%); }
-  .pipe-node { width:100%; text-align:left; display:flex; align-items:center; gap:14px; }
-  .pipe-node .node-icon { font-size:22px; margin:0; }
-  .prompt-card { grid-template-columns:28px 1fr; }
-  .chip,.ptask,.pexpand { display:none; }
-  .prompt-card.expanded .chip,
-  .prompt-card.expanded .ptask,
-  .prompt-card.expanded .pexpand { display:inline-flex; }
-  .pd-grid { grid-template-columns:1fr; }
-  .data-flow-track { display:none; }
-}
-</style>
-</head>
-<body>
-<div class="wrapper">
-
-  <!-- HEADER -->
-  <header>
-    <!--div class="top-label">AI Systems Reference</div-->
-    <h1>End-to-End <em>AI Pipeline</em></h1>
-    <p class="subtitle">click any component to explore · interactive diagram</p>
-    <p class="hint">👆 Click nodes to see detailed explanations</p>
-  </header>
-
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('pipeline')">① Pipeline Flow</button>
-    <button class="tab-btn" onclick="switchTab('architecture')">② Architecture</button>
-    <button class="tab-btn" onclick="switchTab('prompts')">③ Prompt Classifier</button>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- TAB 1: PIPELINE -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <div class="tab-panel active" id="tab-pipeline">
-
-    <div class="pipeline-wrap">
-      <!-- Animated data line -->
-      <div class="data-flow-track">
-        <div class="data-packet"></div>
-        <div class="data-packet" style="animation-delay:1s"></div>
-        <div class="data-packet" style="animation-delay:2s"></div>
-      </div>
-
-      <div class="pipeline">
-
-        <div class="pipe-node" id="node-input" onclick="showDetail('input')">
-          <div class="node-pulse"></div>
-          <span class="node-icon">⌨️</span>
-          <div class="node-title">User Input</div>
-          <div class="node-sub">Prompt</div>
-        </div>
-
-        <div class="connector"></div>
-
-        <div class="pipe-node" id="node-ui" onclick="showDetail('ui')">
-          <span class="node-icon">🌐</span>
-          <div class="node-title">Web Interface</div>
-          <div class="node-sub">UI Layer</div>
-        </div>
-
-        <div class="connector"></div>
-
-        <div class="pipe-node" id="node-app" onclick="showDetail('app')">
-          <span class="node-icon">⚙️</span>
-          <div class="node-title">Application Layer</div>
-          <div class="node-sub">Logic & Routing</div>
-        </div>
-
-        <div class="connector"></div>
-
-        <div class="pipe-node" id="node-llm" onclick="showDetail('llm')">
-          <span class="node-icon">🧠</span>
-          <div class="node-title">LLM / Model</div>
-          <div class="node-sub">Transformer</div>
-        </div>
-
-        <div class="connector"></div>
-
-        <div class="pipe-node" id="node-cloud" onclick="showDetail('cloud')">
-          <span class="node-icon">☁️</span>
-          <div class="node-title">Cloud Models</div>
-          <div class="node-sub">DALL-E etc.</div>
-        </div>
-
-        <div class="connector"></div>
-
-        <div class="pipe-node" id="node-output" onclick="showDetail('output')">
-          <span class="node-icon">📤</span>
-          <div class="node-title">Output</div>
-          <div class="node-sub">Response</div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Detail Panel -->
-    <div class="detail-panel" id="detail-panel">
-      <div class="dp-default">
-        <div class="arrow">↑</div>
-        <div>Click any node above to see details</div>
-      </div>
-    </div>
-
-    <!-- Live Flow Demo -->
-    <div class="flow-demo">
-      <div class="flow-title">▶ Live Flow Simulation</div>
-      <div class="flow-steps" id="flow-steps">
-        <div class="flow-step" id="fs0">
-          <div class="fs-dot"></div>
-          <div style="flex:1">User types: <span style="color:var(--accent)">"Generate an image of a sunset"</span></div>
-        </div>
-        <div class="flow-step" id="fs1">
-          <div class="fs-dot"></div>
-          <div style="flex:1">Web interface captures input, sends HTTP request to application layer</div>
-          <div class="fs-bar"></div>
-        </div>
-        <div class="flow-step" id="fs2">
-          <div class="fs-dot"></div>
-          <div style="flex:1">App layer detects image-generation task → routes to DALL-E API</div>
-          <div class="fs-bar"></div>
-        </div>
-        <div class="flow-step" id="fs3">
-          <div class="fs-dot"></div>
-          <div style="flex:1">LLM parses and enriches the prompt using transformer attention</div>
-          <div class="fs-bar"></div>
-        </div>
-        <div class="flow-step" id="fs4">
-          <div class="fs-dot"></div>
-          <div style="flex:1">DALL-E model generates image in cloud → returns URL</div>
-          <div class="fs-bar"></div>
-        </div>
-        <div class="flow-step" id="fs5">
-          <div class="fs-dot"></div>
-          <div style="flex:1">✅ Image displayed to user in browser — <span style="color:var(--genai)">GenAI: Image Generation</span></div>
-        </div>
-      </div>
-      <button onclick="runFlow()" id="flow-btn" style="
-        margin-top:16px; font-family:'Fira Code',monospace; font-size:11px;
-        background:rgba(0,255,255,0.1); color:var(--accent);
-        border:1px solid rgba(0,255,255,0.3); border-radius:6px;
-        padding:8px 18px; cursor:pointer; transition:all 0.2s;
-        letter-spacing:0.1em;
-      " onmouseover="this.style.background='rgba(0,255,255,0.2)'"
-         onmouseout="this.style.background='rgba(0,255,255,0.1)'">▶ Run Simulation</button>
-    </div>
-
-  </div>
-
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- TAB 2: ARCHITECTURE -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <div class="tab-panel" id="tab-architecture">
-    <div class="arch-grid">
-
-      <div class="arch-card" onclick="toggleArch(this)">
-        <div class="arch-num">01</div>
-        <div class="arch-icon">🏗️</div>
-        <div class="arch-title">Transformer Architecture</div>
-        <div class="arch-desc">The foundational neural network design behind modern LLMs. Processes all input tokens <em>in parallel</em> using attention mechanisms — not sequentially like older RNNs. This parallelism makes training on massive data practical.</div>
-      </div>
-
-      <div class="arch-card" onclick="toggleArch(this)">
-        <div class="arch-num">02</div>
-        <div class="arch-icon">👁️</div>
-        <div class="arch-title">Self-Attention</div>
-        <div class="arch-desc">Allows each token to "look at" every other token in the sequence, computing relevance scores. This is what lets the model understand that "it" in "The cat sat because it was tired" refers to "the cat" — even across long distances.</div>
-      </div>
-
-      <div class="arch-card" onclick="toggleArch(this)">
-        <div class="arch-num">03</div>
-        <div class="arch-icon">🧠</div>
-        <div class="arch-title">Large Language Model</div>
-        <div class="arch-desc">Trained on billions of text tokens, LLMs (Claude, GPT-4, Gemini) can generate coherent text, answer questions, summarize, translate, and reason. They predict the next most likely token given all prior context.</div>
-      </div>
-
-      <div class="arch-card" onclick="toggleArch(this)">
-        <div class="arch-num">04</div>
-        <div class="arch-icon">🎨</div>
-        <div class="arch-title">Image Models (DALL-E)</div>
-        <div class="arch-desc">Diffusion models learn to remove noise from images iteratively. Given a text prompt, they reverse the noise process to generate brand-new images that match the description — a completely different paradigm from LLMs.</div>
-      </div>
-
-      <div class="arch-card" onclick="toggleArch(this)">
-        <div class="arch-num">05</div>
-        <div class="arch-icon">📊</div>
-        <div class="arch-title">Traditional ML Models</div>
-        <div class="arch-desc">Classical algorithms (SVM, Naive Bayes, Random Forests, BERT fine-tuned classifiers) for structured tasks. They're trained on labeled examples to classify, detect spam, score sentiment, or predict churn — no generation involved.</div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════ -->
-  <!-- TAB 3: PROMPTS -->
-  <!-- ═══════════════════════════════════════════════ -->
-  <div class="tab-panel" id="tab-prompts">
-    <p class="prompt-intro">
-      Click any prompt to expand its full classification breakdown — including AI type, task category, which model handles it, and how data flows through the pipeline.
-    </p>
-
-    <div class="prompt-cards">
-
-      <div class="prompt-card" onclick="togglePrompt(this)">
-        <div class="pnum">01</div>
-        <div class="ptext">"Generate an image of a sunset over mountains"
-          <em>GenAI → Image Generation</em>
-        </div>
-        <span class="chip chip-genai">GenAI</span>
-        <span class="ptask">🎨 Image Gen</span>
-        <span class="pexpand">▼</span>
-        <div class="prompt-detail">
-          <div class="pd-grid">
-            <div class="pd-box">
-              <div class="pd-label">AI Type</div>
-              <div class="pd-value" style="color:var(--genai)">Generative AI</div>
-              <div class="pd-value" style="margin-top:4px">Creates brand-new content that didn't exist before — a generated image unique to this prompt.</div>
-            </div>
-            <div class="pd-box">
-              <div class="pd-label">Model Used</div>
-              <div class="pd-value">DALL-E 3 / Midjourney / Stable Diffusion</div>
-              <div class="pd-value" style="margin-top:4px;color:var(--muted)">Diffusion-based image generation model.</div>
-            </div>
-            <div class="pd-box">
-              <div class="pd-label">Pipeline Path</div>
-              <div class="pd-value">Input → UI → App detects image task → Routes to image model API → Generated image → Output</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="prompt-card" onclick="togglePrompt(this)">
-        <div class="pnum">02</div>
-        <div class="ptext">"Classify this email as spam or not spam"
-          <em>Traditional AI → Classification</em>
-        </div>
-        <span class="chip chip-trad">Traditional AI</span>
-        <span class="ptask">🏷️ Classification</span>
-        <span class="pexpand">▼</span>
-        <div class="prompt-detail">
-          <div class="pd-grid">
-            <div class="pd-box">
-              <div class="pd-label">AI Type</div>
-              <div class="pd-value" style="color:var(--trad)">Traditional AI</div>
-              <div class="pd-value" style="margin-top:4px">Trained classifier predicts a discrete label from a fixed set (spam / not spam) — no generation.</div>
-            </div>
-            <div class="pd-box">
-              <div class="pd-label">Model Used</div>
-              <div class="pd-value">Naive Bayes, SVM, or fine-tuned BERT classifier</div>
-              <div class="pd-value" style="margin-top:4px;color:var(--muted)">Assigns probability scores to each class.</div>
-            </div>
-            <div class="pd-box">
-              <div class="pd-label">Pipeline Path</div>
-              <div class="pd-value">Input → UI → App → ML Classifier model → Binary label output → Display result</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="prompt-card" onclick="togglePrompt(this)">
-        <div class="pnum">03</div>
-        <div class="ptext">"Summarize this 10-page research paper"
-          <em>GenAI → Summarization</em>
-        </div>
-        <span class="chip chip-genai">GenAI</span>
-        <span class="ptask">📝 Summarization</span>
-        <span class="pexpand">▼</span>
-        <div class="prompt-detail">
-          <div class="pd-grid">
-            <div class="pd-box">
-              <div class="pd-label">AI Type</div>
-              <div class="pd-value" style="color:var(--genai)">Generative AI</div>
-              <div class="pd-value" style="margin-top:4px">The model generates a new condensed text, not just copying — it reasons about importance and restructures.</div>
-            </div>
-            <div class="pd-box">
-              <div class="pd-label">Model Used</div>
-              <div class="pd-value">Claude, GPT-4, Gemini (long-context LLM)</div>
-              <div class="pd-value" style="margin-top:4px;color:var(--muted)">Needs large context window to process full document.</div>
-            </div>
-            <div class="pd-box">
-              <div class="pd-label">Pipeline Path</div>
-              <div class="pd-value">Document uploaded → App chunks text → LLM processes via transformer → Generated summary → Output</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="prompt-card" onclick="togglePrompt(this)">
-        <div class="pnum">04</div>
-        <div class="ptext">"What is the capital of France?"
-          <em>Factual Q&A → Knowledge Lookup</em>
-        </div>
-        <span class="chip chip-lookup">Factual Q&A</span>
-        <span class="ptask">🔍 Lookup</span>
-        <span class="pexpand">▼</span>
-        <div class="prompt-detail">
-          <div class="pd-grid">
-            <div class="pd-box">
-              <div class="pd-label">AI Type</div>
-              <div class="pd-value" style="color:var(--lookup)">Factual Q&A</div>
-              <div class="pd-value" style="margin-top:4px">Retrieves a stored fact from training data. Not generation (answer is fixed), not classification (no label set).</div>
-            </div>
-            <div class="pd-box">
-              <div class="pd-label">Model Used</div>
-              <div class="pd-value">LLM (knowledge stored in weights) or Search + RAG</div>
-              <div class="pd-value" style="margin-top:4px;color:var(--muted)">Simple facts often answered without search.</div>
-            </div>
-            <div class="pd-box">
-              <div class="pd-label">Pipeline Path</div>
-              <div class="pd-value">Question → LLM recalls from parametric memory → Outputs factual answer directly</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="prompt-card" onclick="togglePrompt(this)">
-        <div class="pnum">05</div>
-        <div class="ptext">"Is this product review positive or negative?"
-          <em>Traditional AI → Sentiment Analysis</em>
-        </div>
-        <span class="chip chip-trad">Traditional AI</span>
-        <span class="ptask">💬 Sentiment</span>
-        <span class="pexpand">▼</span>
-        <div class="prompt-detail">
-          <div class="pd-grid">
-            <div class="pd-box">
-              <div class="pd-label">AI Type</div>
-              <div class="pd-value" style="color:var(--trad)">Traditional AI</div>
-              <div class="pd-value" style="margin-top:4px">A form of classification — maps input text to a sentiment label. Dedicated models outperform general LLMs for this task.</div>
-            </div>
-            <div class="pd-box">
-              <div class="pd-label">Model Used</div>
-              <div class="pd-value">VADER, BERT-sentiment, RoBERTa-sentiment</div>
-              <div class="pd-value" style="margin-top:4px;color:var(--muted)">Fine-tuned on sentiment-labeled datasets.</div>
-            </div>
-            <div class="pd-box">
-              <div class="pd-label">Pipeline Path</div>
-              <div class="pd-value">Review text → Tokenized → Sentiment classifier → Positive/Negative/Neutral score → Output label</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="legend">
-      <div class="legend-item"><div class="ldot" style="background:var(--genai)"></div> GenAI — generates new content (text, images, audio)</div>
-      <div class="legend-item"><div class="ldot" style="background:var(--trad)"></div> Traditional AI — classifies / predicts from fixed labels</div>
-      <div class="legend-item"><div class="ldot" style="background:var(--lookup)"></div> Factual Q&A — retrieves known information from memory</div>
-    </div>
-  </div>
-
-</div>
-
-<script>
-// ── NODE DETAIL DATA ──
-const details = {
-  input: {
-    icon:'⌨️',
-    title:'User Input',
-    sub:'ENTRY POINT',
-    body:'The user types a natural language prompt into the chat interface. This can be a question, a command, a creative request, or any text. The raw input is sent as a string to the web interface layer. Nothing is processed here yet — it is purely capturing what the user wants.',
-    tags:[{t:'Text Prompt',c:'cyan'},{t:'Voice Input',c:'cyan'},{t:'Image Upload',c:'cyan'},{t:'Entry Point',c:'purple'}]
-  },
-  ui: {
-    icon:'🌐',
-    title:'Web Interface',
-    sub:'UI LAYER',
-    body:'The browser-based or mobile chat UI (like Claude.ai) captures the prompt and sends it via an HTTP POST request to the application backend. It handles rendering the response back to the user once received — streaming tokens in real time if supported.',
-    tags:[{t:'HTTP Request',c:'cyan'},{t:'Token Streaming',c:'cyan'},{t:'React / HTML',c:'purple'},{t:'API Gateway',c:'purple'}]
-  },
-  app: {
-    icon:'⚙️',
-    title:'Application Layer',
-    sub:'LOGIC & ROUTING',
-    body:'The backend application receives the prompt and makes routing decisions. It decides which model to call (LLM for text, DALL-E for images, classifier for labels), handles authentication, applies system prompts, manages conversation history, and formats the final response.',
-    tags:[{t:'Prompt Engineering',c:'orange'},{t:'Model Routing',c:'orange'},{t:'Auth / Rate Limits',c:'purple'},{t:'Context Management',c:'cyan'}]
-  },
-  llm: {
-    icon:'🧠',
-    title:'LLM / Model',
-    sub:'TRANSFORMER + SELF-ATTENTION',
-    body:'The Large Language Model is the core AI engine. Built on the Transformer architecture, it tokenizes the input, applies self-attention across all tokens simultaneously, and predicts the next most likely token — repeating this until the full response is generated. Self-attention lets it understand context across the entire input.',
-    tags:[{t:'Transformer',c:'cyan'},{t:'Self-Attention',c:'cyan'},{t:'Token Prediction',c:'purple'},{t:'Claude / GPT-4',c:'green'}]
-  },
-  cloud: {
-    icon:'☁️',
-    title:'Cloud / External Models',
-    sub:'SPECIALIZED APIs',
-    body:'For tasks beyond the LLM\'s core capability — like generating images, converting text to speech, or running computer vision — the application calls specialized external APIs. DALL-E handles image generation, Whisper handles speech-to-text, and other domain-specific models handle their respective modalities.',
-    tags:[{t:'DALL-E (Images)',c:'orange'},{t:'Whisper (Speech)',c:'orange'},{t:'Vision APIs',c:'orange'},{t:'External APIs',c:'purple'}]
-  },
-  output: {
-    icon:'📤',
-    title:'Output',
-    sub:'FINAL RESPONSE',
-    body:'The final response is returned to the user. This could be: generated text (streamed word by word), an image URL (rendered in the browser), a classification label with confidence score, a structured JSON response, or a combination. The web interface renders it appropriately based on content type.',
-    tags:[{t:'Text Response',c:'green'},{t:'Generated Image',c:'green'},{t:'JSON / Structured',c:'green'},{t:'Streamed Tokens',c:'cyan'}]
-  }
-};
-
-function showDetail(key) {
-  // Deactivate all nodes
-  document.querySelectorAll('.pipe-node').forEach(n => n.classList.remove('active'));
-  // Activate clicked
-  document.getElementById('node-' + key).classList.add('active');
-
-  const d = details[key];
-  const panel = document.getElementById('detail-panel');
-
-  const tagHTML = d.tags.map(t => `<span class="dp-tag ${t.c}">${t.t}</span>`).join('');
-
-  panel.innerHTML = `
-    <div class="dp-header">
-      <div class="dp-icon">${d.icon}</div>
-      <div>
-        <div class="dp-title">${d.title}</div>
-        <div class="dp-subtitle">${d.sub}</div>
-      </div>
-    </div>
-    <div class="dp-body">${d.body}</div>
-    <div class="dp-tags">${tagHTML}</div>
-  `;
-}
-
-// ── FLOW SIMULATION ──
-let flowRunning = false;
-function runFlow() {
-  if (flowRunning) return;
-  flowRunning = true;
-  const btn = document.getElementById('flow-btn');
-  btn.textContent = '⏳ Running...';
-  btn.disabled = true;
-
-  const steps = document.querySelectorAll('.flow-step');
-  steps.forEach(s => { s.classList.remove('active','done'); });
-
-  let i = 0;
-  function next() {
-    if (i > 0) steps[i-1].classList.replace('active','done');
-    if (i < steps.length) {
-      steps[i].classList.add('active');
-      i++;
-      setTimeout(next, 900);
-    } else {
-      btn.textContent = '▶ Run Again';
-      btn.disabled = false;
-      flowRunning = false;
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+      --bg:#0a0a0f;
+      --surface:#12121a;
+      --card:#16161f;
+      --border:#1e1e2e;
+      --accent:#6c63ff;
+      --accent2:#00d4aa;
+      --accent3:#ff6b6b;
+      --accent4:#ffd93d;
+      --text:#e4e4ed;
+      --muted:#6b6b80;
+      --glow:rgba(108,99,255,0.15);
     }
-  }
-  next();
-}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:
+      radial-gradient(ellipse 600px 600px at 20% 10%,rgba(108,99,255,0.06),transparent),
+      radial-gradient(ellipse 500px 500px at 80% 80%,rgba(0,212,170,0.04),transparent);
+                 pointer-events:none;z-index:0}
 
-// ── TABS ──
-function switchTab(name) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  event.target.classList.add('active');
-}
+  .wrapper{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:60px 24px 100px}
 
-// ── PROMPT TOGGLE ──
-function togglePrompt(card) {
-  const wasOpen = card.classList.contains('expanded');
-  document.querySelectorAll('.prompt-card').forEach(c => c.classList.remove('expanded'));
-  if (!wasOpen) card.classList.add('expanded');
-}
+  /* ── HERO ── */
+  .hero{text-align:center;margin-bottom:64px;position:relative}
+  .hero::after{content:'';position:absolute;bottom:-32px;left:50%;transform:translateX(-50%);width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
 
-// ── ARCH CARD HOVER ──
-function toggleArch(card) {
-  card.style.boxShadow = card.style.boxShadow ? '' : '0 0 30px rgba(0,255,255,0.15)';
-}
+  .avatar-ring{width:140px;height:140px;border-radius:50%;padding:3px;background:conic-gradient(var(--accent),var(--accent2),var(--accent4),var(--accent3),var(--accent));margin:0 auto 28px;animation:spin 8s linear infinite}
+  @keyframes spin{to{background:conic-gradient(var(--accent3),var(--accent),var(--accent2),var(--accent4),var(--accent3))}}
+  .avatar-ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:4px solid var(--bg)}
 
-// Auto-run simulation on load after delay
-setTimeout(() => runFlow(), 1200);
-</script>
-</body>
-</html>
+  .hero h1{font-size:2.6rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;background:linear-gradient(135deg,#fff,#a5a0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .hero .tagline{font-size:1.05rem;color:var(--muted);font-weight:400;line-height:1.6;max-width:620px;margin:0 auto 20px}
+  .hero .location{font-size:0.85rem;color:var(--muted);margin-bottom:20px}
+
+  .social-links{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .social-links a{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;font-size:0.82rem;font-weight:500;text-decoration:none;color:var(--text);background:var(--card);border:1px solid var(--border);transition:all 0.25s ease}
+  .social-links a:hover{border-color:var(--accent);background:var(--glow);transform:translateY(-2px)}
+  .social-links a svg{width:16px;height:16px}
+
+  /* ── SECTIONS ── */
+  .section{margin-bottom:52px}
+  .section-title{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.18em;color:var(--accent);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+  /* ── ABOUT ── */
+  .about-text{font-size:0.95rem;line-height:1.75;color:var(--text);opacity:0.9}
+
+  /* ── STATS BAR ── */
+  .stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:52px}
+  .stat-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 16px;text-align:center}
+  .stat-num{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:var(--accent2);display:block}
+  .stat-label{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px}
+
+  /* ── EXPERIENCE ── */
+  .timeline{position:relative;padding-left:28px}
+  .timeline::before{content:'';position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--accent),var(--accent2))}
+  .tl-item{position:relative;margin-bottom:28px}
+  .tl-item::before{content:'';position:absolute;left:-24px;top:8px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
+  .tl-title{font-size:1rem;font-weight:700;color:#fff}
+  .tl-company{font-size:0.85rem;color:var(--accent2);font-weight:500}
+  .tl-period{font-size:0.75rem;color:var(--muted);margin:2px 0 8px;font-family:'JetBrains Mono',monospace}
+  .tl-desc{font-size:0.85rem;color:var(--text);opacity:0.8;line-height:1.6}
+
+  /* ── CERTIFICATIONS ── */
+  .cert-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .cert-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;align-items:flex-start;gap:14px;transition:all 0.25s ease}
+  .cert-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .cert-icon{font-size:1.8rem;flex-shrink:0}
+  .cert-name{font-size:0.88rem;font-weight:600;color:#fff}
+  .cert-issuer{font-size:0.75rem;color:var(--muted)}
+
+  /* ── SKILLS ── */
+  .skill-category{margin-bottom:18px}
+  .skill-category-title{font-size:0.78rem;font-weight:600;color:var(--accent2);margin-bottom:10px;font-family:'JetBrains Mono',monospace}
+  .skill-tags{display:flex;flex-wrap:wrap;gap:8px}
+  .skill-tag{font-size:0.75rem;font-weight:500;padding:6px 14px;border-radius:6px;background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.2);color:var(--text);font-family:'JetBrains Mono',monospace;transition:all 0.2s}
+  .skill-tag:hover{background:rgba(108,99,255,0.15);border-color:var(--accent)}
+
+  /* ── PROJECTS ── */
+  .project-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .project-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;transition:all 0.25s ease;text-decoration:none;color:var(--text);display:block}
+  .project-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 30px rgba(108,99,255,0.1)}
+  .project-emoji{font-size:1.4rem;margin-bottom:10px;display:block}
+  .project-name{font-size:0.95rem;font-weight:700;color:#fff;margin-bottom:6px}
+  .project-desc{font-size:0.8rem;color:var(--muted);line-height:1.55;margin-bottom:12px}
+  .project-stack{display:flex;flex-wrap:wrap;gap:6px}
+  .project-stack span{font-size:0.65rem;padding:3px 8px;border-radius:4px;background:rgba(0,212,170,0.1);color:var(--accent2);font-family:'JetBrains Mono',monospace}
+
+  /* ── EDUCATION ── */
+  .edu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .edu-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+  .edu-degree{font-size:0.92rem;font-weight:700;color:#fff}
+  .edu-school{font-size:0.82rem;color:var(--accent2)}
+  .edu-year{font-size:0.75rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+  /* ── FOCUS ── */
+  .focus-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .focus-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center}
+  .focus-icon{font-size:1.6rem;margin-bottom:8px;display:block}
+  .focus-label{font-size:0.82rem;font-weight:600;color:#fff}
+  .focus-status{font-size:0.68rem;color:var(--accent2);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;font-family:'JetBrains Mono',monospace}
+
+  /* ── GITHUB STATS ── */
+  .gh-stats{text-align:center}
+  .gh-stats img{max-width:100%;border-radius:10px;margin:6px}
+
+  /* ── FOOTER ── */
+  .footer{text-align:center;margin-top:60px;padding-top:32px;border-top:1px solid var(--border)}
+  .footer p{font-size:0.78rem;color:var(--muted);line-height:1.8}
+  .footer .heart{color:var(--accent3)}
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:600px){
+    .hero h1{font-size:1.8rem}
+      .wrapper{padding:32px 16px 60px}
+        .stats-bar{grid-template-columns:repeat(2,1fr)}
+        }
+        </style>
+        </head>
+        <body>
+        <div class="wrapper">
+
+          <!-- ═══ HERO ═══ -->
+            <section class="hero">
+                <div class="avatar-ring">
+                      <img src="https://avatars.githubusercontent.com/u/19359673?v=4" alt="Varun Sharma">
+                          </div>
+                              <h1>Varun Sharma</h1>
+                                  <p class="tagline">Technical Architect &amp; GenAI Engineer with 14+ years designing enterprise-scale systems and building real-world AI solutions that scale.</p>
+                                      <p class="location">📍 Greater Tampa Bay Area, FL &nbsp;·&nbsp; 🏢 Tata Consultancy Services</p>
+                                          <div class="social-links">
+                                                <a href="https://github.com/ivarunsharma" target="_blank">
+                                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                                                                GitHub
+                                                                      </a>
+                                                                            <a href="https://www.linkedin.com/in/ivarunsharma/" target="_blank">
+                                                                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                                                                                            LinkedIn
+                                                                                                  </a>
+                                                                                                        <a href="mailto:contact4varun@gmail.com">
+                                                                                                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                                                                                                                        Email
+                                                                                                                              </a>
+                                                                                                                                  </div>
+                                                                                                                                    </section>
+                                                                                                                                    
+                                                                                                                                      <!-- ═══ STATS ═══ -->
+                                                                                                                                        <div class="stats-bar">
+                                                                                                                                            <div class="stat-item"><span class="stat-num">14+</span><span class="stat-label">Years Experience</span></div>
+                                                                                                                                                <div class="stat-item"><span class="stat-num">3x</span><span class="stat-label">AWS Certified</span></div>
+                                                                                                                                                    <div class="stat-item"><span class="stat-num">99.99%</span><span class="stat-label">System Uptime</span></div>
+                                                                                                                                                        <div class="stat-item"><span class="stat-num">25%</span><span class="stat-label">Perf. Improvement</span></div>
+                                                                                                                                                          </div>
+                                                                                                                                                          
+                                                                                                                                                            <!-- ═══ ABOUT ═══ -->
+                                                                                                                                                              <section class="section">
+                                                                                                                                                                  <div class="section-title">About Me</div>
+                                                                                                                                                                      <p class="about-text">
+                                                                                                                                                                            Technical Architect with 14+ years of experience designing, optimizing, and delivering enterprise-scale technology solutions across banking and financial services. Currently at Tata Consultancy Services, supporting Citibank USA on large-scale transformation and modernization initiatives. I specialize in enterprise cloud architecture (AWS), full-stack development (Java, Python), and robust system design including microservices and distributed systems. Passionate about Generative AI, LLM applications, RAG pipelines, and AI Agents — actively building real-world AI systems that scale. Recognized as SPOC for complex technical escalations, consistently delivering under stringent SLAs while mentoring engineers and fostering continuous improvement.
+                                                                                                                                                                                </p>
+                                                                                                                                                                                  </section>
+                                                                                                                                                                                  
+                                                                                                                                                                                    <!-- ═══ CURRENT FOCUS ═══ -->
+                                                                                                                                                                                      <section class="section">
+                                                                                                                                                                                          <div class="section-title">Current Focus</div>
+                                                                                                                                                                                              <div class="focus-grid">
+                                                                                                                                                                                                    <div class="focus-card"><span class="focus-icon">🧠</span><span class="focus-label">Generative AI & LLMs</span><span class="focus-status">Primary Focus</span></div>
+                                                                                                                                                                                                          <div class="focus-card"><span class="focus-icon">🔗</span><span class="focus-label">RAG Pipelines</span><span class="focus-status">Active</span></div>
+                                                                                                                                                                                                                <div class="focus-card"><span class="focus-icon">🤖</span><span class="focus-label">AI Agents & Automation</span><span class="focus-status">Building</span></div>
+                                                                                                                                                                                                                      <div class="focus-card"><span class="focus-icon">☁️</span><span class="focus-label">Cloud (AWS / Azure)</span><span class="focus-status">Deepening</span></div>
+                                                                                                                                                                                                                          </div>
+                                                                                                                                                                                                                            </section>
+                                                                                                                                                                                                                            
+                                                                                                                                                                                                                              <!-- ═══ EXPERIENCE ═══ -->
+                                                                                                                                                                                                                                <section class="section">
+                                                                                                                                                                                                                                    <div class="section-title">Experience</div>
+                                                                                                                                                                                                                                        <div class="timeline">
+                                                                                                                                                                                                                                              <div class="tl-item">
+                                                                                                                                                                                                                                                      <div class="tl-title">Assistant Consultant</div>
+                                                                                                                                                                                                                                                              <div class="tl-company">Tata Consultancy Services · Citibank USA</div>
+                                                                                                                                                                                                                                                                      <div class="tl-period">Oct 2019 — Present · Tampa, FL</div>
+                                                                                                                                                                                                                                                                              <div class="tl-desc">Orchestrating annual SWIFT upgrades ensuring 99.99% availability. Architected failover & clustering solutions. Automated performance analysis achieving 25% improvement in response times. SPOC for critical technical escalations under stringent SLAs.</div>
+                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                          <div class="tl-item">
+                                                                                                                                                                                                                                                                                                  <div class="tl-title">IT Analyst</div>
+                                                                                                                                                                                                                                                                                                          <div class="tl-company">Tata Consultancy Services · Northern Trust</div>
+                                                                                                                                                                                                                                                                                                                  <div class="tl-period">Apr 2016 — Oct 2019 · Gurgaon, India</div>
+                                                                                                                                                                                                                                                                                                                          <div class="tl-desc">Developed web services and REST APIs. Managed delivery and deployment using uDeploy, Oracle, and shell scripts. Led knowledge-sharing sessions and source code management with GIT.</div>
+                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                      <div class="tl-item">
+                                                                                                                                                                                                                                                                                                                                              <div class="tl-title">Systems Engineer</div>
+                                                                                                                                                                                                                                                                                                                                                      <div class="tl-company">Tata Consultancy Services · Société Générale</div>
+                                                                                                                                                                                                                                                                                                                                                              <div class="tl-period">Mar 2015 — Mar 2016 · Gurgaon, India</div>
+                                                                                                                                                                                                                                                                                                                                                                      <div class="tl-desc">Developed interfaces using Java & XML for TCS BaNCS Corporate Actions. Source code refactoring using FORTIFY and SONAR. Offshore support for onsite teams.</div>
+                                                                                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                                                                                  <div class="tl-item">
+                                                                                                                                                                                                                                                                                                                                                                                          <div class="tl-title">Software Developer</div>
+                                                                                                                                                                                                                                                                                                                                                                                                  <div class="tl-company">Oodles Technologies Pvt Ltd</div>
+                                                                                                                                                                                                                                                                                                                                                                                                          <div class="tl-period">Feb 2012 — Mar 2015 · Gurgaon, India</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                  <div class="tl-desc">Full-stack development for web/mobile apps. Backend development with Grails, Jenkins CI/CD, AWS/Azure environments. Client scrum meetings and daily standup management.</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                              </section>
+                                                                                                                                                                                                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                                                                                                                                                                                                                <!-- ═══ CERTIFICATIONS ═══ -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                  <section class="section">
+                                                                                                                                                                                                                                                                                                                                                                                                                                      <div class="section-title">Certifications</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                          <div class="cert-grid">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="cert-card">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        <span class="cert-icon">🏅</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div><div class="cert-name">AWS Certified GenAI Developer — Professional</div><div class="cert-issuer">Amazon Web Services · Feb 2026</div></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="cert-card">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="cert-icon">🏅</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div><div class="cert-name">AWS Certified Solutions Architect — Associate</div><div class="cert-issuer">Amazon Web Services</div></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="cert-card">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <span class="cert-icon">🏅</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div><div class="cert-name">AWS Certified Cloud Practitioner</div><div class="cert-issuer">Amazon Web Services</div></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="cert-card">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <span class="cert-icon">📜</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div><div class="cert-name">AGS Advanced Generative AI: Models & Architecture</div><div class="cert-issuer">Simplilearn · Mar 2026</div></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </section>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <!-- ═══ SKILLS ═══ -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <section class="section">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="section-title">Tech Stack</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="skill-category">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <div class="skill-category-title">// Languages</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="skill-tags">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <span class="skill-tag">Java</span><span class="skill-tag">Python</span><span class="skill-tag">J2EE</span><span class="skill-tag">Groovy</span><span class="skill-tag">Shell/UNIX</span><span class="skill-tag">SQL</span><span class="skill-tag">JavaScript</span><span class="skill-tag">HTML/CSS</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <div class="skill-category">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="skill-category-title">// AI & ML</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <div class="skill-tags">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <span class="skill-tag">LLMs</span><span class="skill-tag">RAG</span><span class="skill-tag">AI Agents</span><span class="skill-tag">Prompt Engineering</span><span class="skill-tag">Claude API</span><span class="skill-tag">OpenAI</span><span class="skill-tag">Streamlit</span><span class="skill-tag">LangChain</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="skill-category">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <div class="skill-category-title">// Cloud & DevOps</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="skill-tags">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="skill-tag">AWS</span><span class="skill-tag">Azure</span><span class="skill-tag">Jenkins</span><span class="skill-tag">Git</span><span class="skill-tag">uDeploy</span><span class="skill-tag">Docker</span><span class="skill-tag">Grafana</span><span class="skill-tag">IBM WebSphere</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <div class="skill-category">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="skill-category-title">// Databases & Messaging</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <div class="skill-tags">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <span class="skill-tag">Oracle</span><span class="skill-tag">MySQL</span><span class="skill-tag">SQLite</span><span class="skill-tag">Kafka</span><span class="skill-tag">REST APIs</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="skill-category">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <div class="skill-category-title">// Architecture & Design</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="skill-tags">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <span class="skill-tag">Microservices</span><span class="skill-tag">System Design (HLD/LLD)</span><span class="skill-tag">Distributed Systems</span><span class="skill-tag">Failover & Clustering</span><span class="skill-tag">Design Patterns</span><span class="skill-tag">SDLC</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </section>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <!-- ═══ PROJECTS ═══ -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <section class="section">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="section-title">Featured Projects</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="project-grid">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <a class="project-card" href="https://github.com/ivarunsharma/ai-news-digest" target="_blank">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <span class="project-emoji">🤖</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <div class="project-name">ai-news-digest</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <div class="project-desc">AI-powered news dashboard — fetches live headlines, summarizes with Claude Haiku, stores to SQLite.</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <div class="project-stack"><span>Python</span><span>Streamlit</span><span>Claude Haiku</span><span>NewsAPI</span></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </a>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <a class="project-card" href="https://github.com/ivarunsharma/ai-summarizer" target="_blank">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <span class="project-emoji">✍️</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <div class="project-name">ai-summarizer</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <div class="project-desc">Summarize any text or URL in seconds — 4 styles including ELI5 & Key Takeaways.</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <div class="project-stack"><span>Python</span><span>Streamlit</span><span>Claude API</span><span>newspaper3k</span></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </a>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <a class="project-card" href="https://github.com/ivarunsharma/GenaipythonExamples" target="_blank">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <span class="project-emoji">🐍</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <div class="project-name">GenaipythonExamples</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <div class="project-desc">Hands-on Generative AI code examples with Python covering LLMs, agents, and more.</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <div class="project-stack"><span>Python</span><span>LLMs</span><span>GenAI</span></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </a>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <a class="project-card" href="https://github.com/ivarunsharma/awesome-llm-apps" target="_blank">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <span class="project-emoji">🧠</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <div class="project-name">awesome-llm-apps</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <div class="project-desc">Curated collection of LLM apps with AI Agents and RAG using OpenAI, Anthropic, Gemini & OSS models.</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <div class="project-stack"><span>OpenAI</span><span>Anthropic</span><span>Gemini</span><span>RAG</span></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </a>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </section>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <!-- ═══ EDUCATION ═══ -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <section class="section">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <div class="section-title">Education</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <div class="edu-grid">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="edu-card">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="edu-degree">M.Tech — Computer Science</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="edu-school">Maharishi Markandeshwar University</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="edu-year">2012 — 2015</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="edu-card">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="edu-degree">B.Tech — Information Technology</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="edu-school">Kurukshetra University</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="edu-year">2007 — 2011</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </section>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <!-- ═══ GITHUB STATS ═══ -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <section class="section">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="section-title">GitHub Activity</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="gh-stats">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <img src="https://github-readme-stats.vercel.app/api?username=ivarunsharma&show_icons=true&theme=midnight-purple&hide_border=true&bg_color=0a0a0f&title_color=6c63ff&icon_color=00d4aa&text_color=e4e4ed" alt="GitHub Stats">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <br>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <img src="https://github-readme-streak-stats.herokuapp.com/?user=ivarunsharma&theme=midnight-purple&hide_border=true&background=0a0a0f&ring=6c63ff&fire=ff6b6b&currStreakLabel=00d4aa" alt="GitHub Streak">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <br>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=ivarunsharma&layout=compact&theme=midnight-purple&hide_border=true&bg_color=0a0a0f&title_color=6c63ff&text_color=e4e4ed" alt="Top Languages">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </section>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <!-- ═══ COLLABORATION ═══ -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <section class="section">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="section-title">Open to Collaborate</div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div class="focus-grid">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <div class="focus-card"><span class="focus-icon">🚀</span><span class="focus-label">GenAI & LLM Products</span></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="focus-card"><span class="focus-icon">🔗</span><span class="focus-label">RAG Systems & AI Agents</span></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <div class="focus-card"><span class="focus-icon">📦</span><span class="focus-label">Productionizing AI Apps</span></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div class="focus-card"><span class="focus-icon">⚡</span><span class="focus-label">Intelligent Automation</span></div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </section>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <!-- ═══ FOOTER ═══ -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <div class="footer">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <p>Building the future, one model at a time.<br><span class="heart">♥</span> Crafted by Varun Sharma · 2026</p>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </body>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </html>
+</style></title>
+</head>
