@@ -112,7 +112,7 @@
          <!-- ═══ HERO ═══ -->
          <section class="hero">
             <div class="avatar-ring">
-               <img src="https://avatars.githubusercontent.com/u/19359673?v=4" alt="Varun Sharma">
+               <img src="https://avatars.githubusercontent.com/u/2123341?v=4" alt="Varun Sharma">
             </div>
             <h1>Varun Sharma</h1>
             <p class="tagline">Technical Architect &amp; GenAI Engineer with 14+ years designing enterprise-scale systems and building real-world AI solutions that scale.</p>
