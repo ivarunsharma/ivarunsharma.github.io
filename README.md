@@ -275,12 +275,6 @@
                   <div class="project-desc">Hands-on Generative AI code examples with Python covering LLMs, agents, and more.</div>
                   <div class="project-stack"><span>Python</span><span>LLMs</span><span>GenAI</span></div>
                </a>
-               <a class="project-card" href="https://github.com/ivarunsharma/awesome-llm-apps" target="_blank">
-                  <span class="project-emoji">🧠</span>
-                  <div class="project-name">awesome-llm-apps</div>
-                  <div class="project-desc">Curated collection of LLM apps with AI Agents and RAG using OpenAI, Anthropic, Gemini & OSS models.</div>
-                  <div class="project-stack"><span>OpenAI</span><span>Anthropic</span><span>Gemini</span><span>RAG</span></div>
-               </a>
             </div>
          </section>
          <!-- ═══ EDUCATION ═══ -->
